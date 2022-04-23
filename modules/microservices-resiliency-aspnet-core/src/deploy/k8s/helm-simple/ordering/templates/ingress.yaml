@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ordering
@@ -6,17 +6,16 @@ metadata:
     app: eshop
     service: ordering
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-{{- if .Values.useHostName }}
-  - host: {{ .Values.host }}
-    http:
-{{- else }}
   - http:
-{{- end }}
       paths:
       - path: /ordering-api
+        pathType: Prefix
         backend:
-          serviceName: ordering-api
-          servicePort: 80
+          service:
+            name: ordering-api
+            port:
+              number: 80
