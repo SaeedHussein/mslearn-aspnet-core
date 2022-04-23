@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: identity
@@ -6,17 +6,16 @@ metadata:
     app: eshop
     service: identity
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-{{- if .Values.useHostName }}
-  - host: {{ .Values.host }}
-    http:
-{{- else }}
   - http:
-{{- end }}
       paths:
-      - path: /identity
+      - path: /identity-api
+        pathType: Prefix
         backend:
-          serviceName: identity-api
-          servicePort: 80
+          service:
+            name: identity-api
+            port:
+              number: 80
