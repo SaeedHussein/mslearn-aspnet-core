@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: webspa
@@ -6,23 +6,22 @@ metadata:
     app: eshop
     service: webspa
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
-{{- if eq .Values.protocol "https" }}
+  ingressClassName: nginx
+  {{- if eq .Values.protocol "https" }}
   tls:
-    - hosts:
+  - hosts:
       - {{ .Values.host }}
-      secretName: tls-secret
-{{- end }}
+    secretName: tls-secret
+  {{- end }}
   rules:
-{{- if .Values.useHostName }}
-  - host: {{ .Values.host }}
-    http:
-{{- else }}
   - http:
-{{- end }}
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: webspa
-          servicePort: 80
+          service:
+            name: webspa
+            port:
+              number: 80
