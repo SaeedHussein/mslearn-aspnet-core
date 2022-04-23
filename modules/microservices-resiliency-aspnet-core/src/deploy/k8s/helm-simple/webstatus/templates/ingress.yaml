@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: webstatus
@@ -6,17 +6,16 @@ metadata:
     app: eshop
     service: webstatus
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-{{- if .Values.useHostName }}
-  - host: {{ .Values.host }}
-    http:
-{{- else }}
   - http:
-{{- end }}
       paths:
-      - path: /webstatus
+      - path: /
+        pathType: Prefix
         backend:
-          serviceName: webstatus
-          servicePort: 80
+          service:
+            name: webstatus
+            port:
+              number: 80
