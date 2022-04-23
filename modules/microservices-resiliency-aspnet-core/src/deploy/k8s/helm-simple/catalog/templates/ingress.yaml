@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: catalog
@@ -6,17 +6,16 @@ metadata:
     app: eshop
     service: catalog
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-{{- if .Values.useHostName }}
-  - host: {{ .Values.host }}
-    http:
-{{- else }}
   - http:
-{{- end }}
       paths:
       - path: /catalog-api
+        pathType: Prefix
         backend:
-          serviceName: catalog-api
-          servicePort: 80
+          service:
+            name: catalog-api
+            port:
+              number: 80
